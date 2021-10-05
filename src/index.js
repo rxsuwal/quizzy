@@ -3,11 +3,40 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import reducer from './store/reducer'
+import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+
+const rootReducer = combineReducers({
+
+  reducer: reducer
+
+})
+
+const logger = store =>{
+  return next =>{
+      return action =>{
+          console.log('Middleware Dispatching..', action);
+          const result = next(action);
+          console.log("Middleware next state", store.getState())
+          return result
+ 
+      }
+  }
+}
+
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const store = createStore(rootReducer,composeEnhancers(applyMiddleware(logger,thunk)))
+
 
 ReactDOM.render(
-  <React.StrictMode>
+  <Provider store={store}>
+    <React.StrictMode>
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>
+  </Provider>,
   document.getElementById('root')
 );
 
